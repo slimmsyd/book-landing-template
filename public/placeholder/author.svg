@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600" viewBox="0 0 480 600">
+  <rect width="480" height="600" fill="#efe9dd"/>
+  <circle cx="240" cy="225" r="80" fill="#d8c9b0"/>
+  <path d="M120 520c0-90 54-150 120-150s120 60 120 150z" fill="#d8c9b0"/>
+  <text x="240" y="565" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" letter-spacing="3" fill="#857d72">AUTHOR PORTRAIT</text>
+</svg>

@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f6f2ea;
+  --color-panel: #efe9dd;
+  --color-ink: #1a1714;
+  --color-ink-soft: #4a443c;
+  --color-muted: #857d72;
+  --color-gold: #9c7b4d;
+  --color-gold-light: #d8b27c;
+  --color-dark: #16130f;
+
+  --font-display: var(--font-schibsted), sans-serif;
+  --font-body: var(--font-hanken), system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Lock the site to a light scheme so dark-mode browsers never invert the
+     canvas to black (cream is the brand background everywhere). */
+  color-scheme: light;
+  background: var(--color-paper);
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}

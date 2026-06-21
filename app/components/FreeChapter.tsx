@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import site from "@/site.config";
+import { useSiteContent } from "@/app/lib/site-content";
 
 export default function FreeChapter() {
+  const site = useSiteContent();
   const {
     eyebrow,
     headline,

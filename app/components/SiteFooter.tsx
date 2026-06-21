@@ -1,6 +1,7 @@
-import site from "@/site.config";
+import { getSiteContent } from "@/app/lib/content";
 
-export default function SiteFooter() {
+export default async function SiteFooter() {
+  const site = await getSiteContent();
   const year = new Date().getFullYear();
   return (
     <footer className="bg-paper px-[clamp(24px,6vw,96px)] pt-[clamp(48px,8vh,80px)] pb-9">

@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import site from "@/site.config";
+import { useSiteContent } from "@/app/lib/site-content";
 
-const SLIDES = site.copy.hero.slides;
 const HERO_OVERLAY = 0.55;
 
 function overlayGradient(ov: number) {
@@ -11,7 +10,9 @@ function overlayGradient(ov: number) {
 }
 
 export default function Hero() {
-  const { byline, headline, sub, primaryCta, secondaryCta } = site.copy.hero;
+  const site = useSiteContent();
+  const { byline, headline, sub, primaryCta, secondaryCta, slides: SLIDES } =
+    site.copy.hero;
   const [slide, setSlide] = useState(0);
 
   useEffect(() => {

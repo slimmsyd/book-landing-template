@@ -1,6 +1,7 @@
-import site from "@/site.config";
+import { getSiteContent } from "@/app/lib/content";
 
-export default function Community() {
+export default async function Community() {
+  const site = await getSiteContent();
   const { eyebrow, headline, body, photos } = site.copy.community;
   if (photos.length === 0) return null;
   return (

@@ -17,6 +17,8 @@ it's charged).
 - Route handlers: `create-payment-intent`, `webhooks/stripe`, `subscribe`.
 - Pluggable hooks for order fulfillment and email capture — **no database
   required** to run.
+- **Optional admin CRM** (add a database + password): edit the entire site from
+  the browser, and persist orders + newsletter subscribers. Off by default.
 
 ## Quick start
 
@@ -53,26 +55,61 @@ Required env vars are documented in [`.env.example`](./.env.example).
 
 ## How pricing & checkout work
 
-- `app/lib/money.ts` computes subtotal / shipping / total from `site.config`
+- `app/lib/money.ts` computes subtotal / shipping / total from the live pricing
   (all cents). The **same** function runs in the order summary (client) and in
   `create-payment-intent` (server), so they can't disagree.
 - `app/api/create-payment-intent/route.ts` ignores any client amount, recomputes
-  the total from config, clamps quantity to `[1, maxQty]`, enforces a
-  `MAX_TOTAL_CENTS` ceiling, and returns a `clientSecret`.
+  the total from `getSiteContent()` (your `site.config`, or the CRM's DB edits),
+  clamps quantity to `[1, maxQty]`, enforces a `MAX_TOTAL_CENTS` ceiling, and
+  returns a `clientSecret`.
 - `app/checkout/Checkout.tsx` creates/refreshes the PaymentIntent on load and on
   quantity change, then renders `<StripeProvider>` → `<CheckoutForm>` with
   `<PaymentElement>`. On success Stripe redirects to
   `/checkout?status=success`, which clears the cart and shows the confirmation.
 
-## Where to add persistence / integrations
+## Optional admin CRM
 
-This template runs without a database on purpose. The two seams:
+The template runs with **no database** by default (pull-and-go). Add three env
+vars and you get a full admin CRM — with zero code changes:
+
+```bash
+DATABASE_URL=postgresql://...        # a Neon Postgres database (neon.tech)
+SESSION_SECRET=...                   # openssl rand -hex 32
+ADMIN_PASSWORD=...                   # or ADMIN_PASSWORD_HASH (sha256 hex)
+
+npm run db:init                      # creates site_content, orders, subscribers
+```
+
+Then visit **`/admin`** and log in. You get:
+
+- **Content** — a generic, schema-driven editor for the *entire* `site.config`
+  (brand, product/pricing, every copy slice, nav, SEO). Edit any field, save,
+  and it publishes live. Because it's schema-driven, it adapts to whatever shape
+  your `site.config.ts` has — use this template for any kind of site.
+- **Orders** — every paid order (customer, shipping, total), persisted from the
+  Stripe webhook.
+- **Subscribers** — newsletter / free-chapter signups, deduped by email.
+
+**How it stays graceful:** with no `DATABASE_URL`, `getSiteContent()` returns
+your static `site.config`, the `/admin` routes 404, and order/subscriber writes
+are skipped — the site behaves exactly as the zero-DB template. Turn the env
+vars on and the same code becomes a CMS. `site.config.ts` is always the default
+seed; the database only holds edits layered on top.
+
+The admin is auth-gated by `proxy.ts` and every action re-checks the session.
+Credentials live only in env (no secrets in code), so it's reproducible: clone,
+set the three vars, `db:init`, done.
+
+## Where to add custom integrations
+
+Two seams stay pluggable whether or not the CRM is on:
 
 - **`app/lib/fulfillment.ts`** — `fulfillOrder()` runs after a successful
-  payment (via the webhook). Default: log + optional `ORDER_WEBHOOK_URL`
-  forward. Replace the body with your DB write (Prisma/Drizzle/Supabase/etc.).
-- **`app/api/subscribe/route.ts`** — free-chapter email signups. Default: log +
-  optional `EMAIL_WEBHOOK_URL` forward. Swap in your email provider's API.
+  payment. It persists to the DB (when enabled) **and** forwards to
+  `ORDER_WEBHOOK_URL` if set (Zapier/Make/n8n/your API).
+- **`app/api/subscribe/route.ts`** — free-chapter signups. Persists to the DB
+  (when enabled) **and** forwards to `EMAIL_WEBHOOK_URL` if set. Swap in your
+  email provider's API here for direct integration.
 
 ## Deploy (Vercel)
 

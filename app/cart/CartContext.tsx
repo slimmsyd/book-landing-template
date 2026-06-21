@@ -6,7 +6,6 @@ import {
   useContext,
   useSyncExternalStore,
 } from "react";
-import site from "@/site.config";
 
 type CartCtx = {
   /** Number of copies of the product in the cart (single-product store). */
@@ -20,7 +19,9 @@ type CartCtx = {
 
 const Ctx = createContext<CartCtx | null>(null);
 const KEY = "cart_qty";
-const MAX = site.product.maxQty;
+// Soft UI cap, set from the live content by CartProvider. The server pricing
+// route clamps authoritatively, so this is only for the quantity stepper.
+let MAX = 99;
 
 const clamp = (n: number) => Math.max(0, Math.min(MAX, Math.floor(n) || 0));
 
@@ -62,7 +63,14 @@ function subscribe(cb: () => void) {
   };
 }
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({
+  maxQty = 99,
+  children,
+}: {
+  maxQty?: number;
+  children: React.ReactNode;
+}) {
+  MAX = maxQty;
   const qty = useSyncExternalStore(subscribe, readQty, () => 0);
 
   const add = useCallback(() => writeQty(readQty() + 1), []);

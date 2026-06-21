@@ -1,6 +1,7 @@
-import site from "@/site.config";
+import { getSiteContent } from "@/app/lib/content";
 
-export default function Quote() {
+export default async function Quote() {
+  const site = await getSiteContent();
   const { eyebrow, text, highlight, attribution } = site.copy.quote;
   return (
     <section className="flex justify-center bg-paper px-[clamp(24px,6vw,96px)] py-[clamp(96px,16vh,200px)]">

@@ -10,9 +10,11 @@
  */
 
 import { NextResponse } from "next/server";
-import site from "@/site.config";
-import { computeOrder } from "@/app/lib/money";
+import { computeOrder, pricingFrom } from "@/app/lib/money";
+import { getSiteContent } from "@/app/lib/content";
 import { getStripe } from "@/app/lib/stripe";
+
+export const dynamic = "force-dynamic";
 
 // Hard ceiling (cents) — refuse anything larger as a safety net. $50,000.
 const MAX_TOTAL_CENTS = 5_000_000;
@@ -38,7 +40,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const order = computeOrder(Number(body.qty) || 1);
+  // Pricing comes from the live content (DB-backed when the CRM is on), but the
+  // amount is still computed here, server-side — the client never sets it.
+  const site = await getSiteContent();
+  const order = computeOrder(Number(body.qty) || 1, pricingFrom(site.product));
 
   if (order.totalCents > MAX_TOTAL_CENTS) {
     return NextResponse.json(

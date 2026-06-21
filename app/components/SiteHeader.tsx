@@ -1,5 +1,5 @@
 import Image from "next/image";
-import site from "@/site.config";
+import { getSiteContent } from "@/app/lib/content";
 import CartButton from "./CartButton";
 
 function SocialIcon({ label }: { label: string }) {
@@ -21,7 +21,8 @@ function SocialIcon({ label }: { label: string }) {
   );
 }
 
-export default function SiteHeader() {
+export default async function SiteHeader() {
+  const site = await getSiteContent();
   return (
     <div className="sticky top-0 z-50 border-b border-ink/10 bg-white">
       <nav className="mx-auto flex max-w-[1640px] items-center justify-between gap-5 px-[clamp(20px,4vw,56px)] py-[13px]">

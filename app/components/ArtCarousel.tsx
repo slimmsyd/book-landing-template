@@ -1,14 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import site from "@/site.config";
+import { getSiteContent } from "@/app/lib/content";
 import ArtMarquee, { type Tile } from "./ArtMarquee";
-
-// Links the gallery label + tiles to your Instagram (falls back to the first
-// configured social link, then "#").
-const PROFILE =
-  site.social.find((s) => s.label.toLowerCase() === "instagram")?.href ??
-  site.social[0]?.href ??
-  "#";
 
 type IgPost = {
   shortCode: string;
@@ -18,8 +11,8 @@ type IgPost = {
   files: string[];
 };
 
-async function getTiles(): Promise<Tile[]> {
-  const fallbackAlt = `Post by ${site.brand.siteName}`;
+async function getTiles(profile: string, siteName: string): Promise<Tile[]> {
+  const fallbackAlt = `Post by ${siteName}`;
   try {
     const file = path.join(
       process.cwd(),
@@ -34,7 +27,7 @@ async function getTiles(): Promise<Tile[]> {
     return posts.flatMap((p) =>
       (p.files ?? []).map((f) => ({
         src: `/assets/instagram/${f}`,
-        href: p.postUrl || PROFILE,
+        href: p.postUrl || profile,
         alt: (p.caption || fallbackAlt).split("\n")[0].slice(0, 120) || fallbackAlt,
       }))
     );
@@ -44,7 +37,12 @@ async function getTiles(): Promise<Tile[]> {
 }
 
 export default async function ArtCarousel() {
-  const tiles = await getTiles();
+  const site = await getSiteContent();
+  const profile =
+    site.social.find((s) => s.label.toLowerCase() === "instagram")?.href ??
+    site.social[0]?.href ??
+    "#";
+  const tiles = await getTiles(profile, site.brand.siteName);
   if (tiles.length === 0) return null;
 
   return (
@@ -55,7 +53,7 @@ export default async function ArtCarousel() {
       {/* Fixed label — stays in place while the gallery drifts below it */}
       <div className="mb-[14px] px-[clamp(24px,6vw,96px)]">
         <a
-          href={PROFILE}
+          href={profile}
           target="_blank"
           rel="noopener"
           className="inline-flex items-center gap-[8px] font-display text-[12px] font-semibold uppercase tracking-[0.3em] text-ink transition-colors hover:text-gold"

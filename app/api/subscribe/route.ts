@@ -27,6 +27,14 @@ export async function POST(req: Request) {
 
   console.log("[subscribe] new signup", email);
 
+  // Persist to the database when the CRM is enabled (no-op otherwise).
+  try {
+    const { upsertSubscriber } = await import("@/app/lib/subscribers");
+    await upsertSubscriber(email, "free-chapter");
+  } catch (err) {
+    console.error("[subscribe] DB persist failed", err);
+  }
+
   const url = process.env.EMAIL_WEBHOOK_URL;
   if (url) {
     try {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import site from "@/site.config";
+import { useSiteContent } from "@/app/lib/site-content";
 
 /**
  * Book showcase: shows the still cover at rest, then (if a hover video is
@@ -11,6 +11,7 @@ import site from "@/site.config";
  * When `product.hoverVideo` is empty, only the still cover renders.
  */
 export default function BookHoverMedia() {
+  const site = useSiteContent();
   const { coverImage, coverAlt, hoverVideo } = site.product;
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);

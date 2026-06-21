@@ -3,7 +3,7 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { useMemo } from "react";
-import site from "@/site.config";
+import { useSiteContent } from "@/app/lib/site-content";
 
 // loadStripe is memoized at module scope so the script loads once.
 const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
@@ -20,12 +20,14 @@ export default function StripeProvider({
   clientSecret: string;
   children: React.ReactNode;
 }) {
+  const site = useSiteContent();
+  const appearance = site.brand.stripeAppearance;
   const options = useMemo(
     () => ({
       clientSecret,
-      appearance: site.brand.stripeAppearance,
+      appearance,
     }),
-    [clientSecret]
+    [clientSecret, appearance]
   );
 
   return (

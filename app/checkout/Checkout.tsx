@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import site from "@/site.config";
+import { useSiteContent } from "@/app/lib/site-content";
 import { useCart } from "../cart/CartContext";
-import { computeOrder, formatMoney } from "../lib/money";
+import { computeOrder, formatMoney, pricingFrom } from "../lib/money";
 import StripeProvider from "./StripeProvider";
 import CheckoutForm from "./CheckoutForm";
 
 export default function Checkout() {
+  const site = useSiteContent();
+  const pricing = pricingFrom(site.product);
+  const currency = site.product.currency;
   const { qty, setQty, clear } = useCart();
   const searchParams = useSearchParams();
   // Stripe redirects to /checkout?status=success&redirect_status=succeeded.
@@ -64,8 +67,8 @@ export default function Checkout() {
   }, [qty, success]);
 
   const activeQty = success ? orderedQty : Math.max(1, qty);
-  const totals = computeOrder(activeQty);
-  const payLabel = `Pay ${formatMoney(totals.totalCents)} · Place order`;
+  const totals = computeOrder(activeQty, pricing);
+  const payLabel = `Pay ${formatMoney(totals.totalCents, currency)} · Place order`;
 
   const inc = () => setQty(Math.min(Math.max(1, qty) + 1, site.product.maxQty));
   const dec = () => setQty(Math.max(Math.max(1, qty) - 1, 1));
@@ -73,7 +76,7 @@ export default function Checkout() {
   const shippingLine =
     site.product.shipFlatCents === 0
       ? "Free shipping included"
-      : `Free shipping over ${formatMoney(site.product.freeShipThresholdCents)}`;
+      : `Free shipping over ${formatMoney(site.product.freeShipThresholdCents, currency)}`;
 
   return (
     <div className="min-h-screen bg-paper font-body text-ink antialiased">
@@ -221,14 +224,14 @@ export default function Checkout() {
           <div className="flex flex-col gap-[11px] text-[15px] text-ink-soft">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>{formatMoney(totals.subtotalCents)}</span>
+              <span>{formatMoney(totals.subtotalCents, currency)}</span>
             </div>
             <div className="flex justify-between">
               <span>Shipping</span>
               <span>
                 {totals.shippingCents === 0
                   ? "Free"
-                  : formatMoney(totals.shippingCents)}
+                  : formatMoney(totals.shippingCents, currency)}
               </span>
             </div>
           </div>
@@ -240,7 +243,7 @@ export default function Checkout() {
               Total
             </span>
             <span className="font-display text-[26px] tracking-[-0.01em]">
-              {formatMoney(totals.totalCents)}
+              {formatMoney(totals.totalCents, currency)}
             </span>
           </div>
 

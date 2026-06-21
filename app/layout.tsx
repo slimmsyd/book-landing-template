@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Schibsted_Grotesk, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "./cart/CartContext";
-import site from "@/site.config";
+import { SiteContentProvider } from "./lib/site-content";
+import { getSiteContent } from "./lib/content";
 
 const schibsted = Schibsted_Grotesk({
   variable: "--font-schibsted",
@@ -16,38 +17,43 @@ const hanken = Hanken_Grotesk({
   weight: ["300", "400", "500", "600"],
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? `https://${site.brand.domain}`;
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteContent();
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? `https://${site.brand.domain}`;
+  return {
+    metadataBase: new URL(siteUrl),
+    title: site.seo.title,
+    description: site.seo.description,
+    openGraph: {
+      title: site.seo.ogTitle,
+      description: site.seo.ogDescription,
+      type: "website",
+      url: siteUrl,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: site.seo.ogTitle,
+      description: site.seo.ogDescription,
+    },
+  };
+}
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: site.seo.title,
-  description: site.seo.description,
-  openGraph: {
-    title: site.seo.ogTitle,
-    description: site.seo.ogDescription,
-    type: "website",
-    url: siteUrl,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: site.seo.ogTitle,
-    description: site.seo.ogDescription,
-  },
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const site = await getSiteContent();
   return (
     <html
       lang="en"
       className={`${schibsted.variable} ${hanken.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <CartProvider>{children}</CartProvider>
+        <SiteContentProvider content={site}>
+          <CartProvider maxQty={site.product.maxQty}>{children}</CartProvider>
+        </SiteContentProvider>
       </body>
     </html>
   );

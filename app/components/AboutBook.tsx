@@ -1,8 +1,9 @@
-import site from "@/site.config";
+import { getSiteContent } from "@/app/lib/content";
 import AddToCartButton from "./AddToCartButton";
 import BookHoverMedia from "./BookHoverMedia";
 
-export default function AboutBook() {
+export default async function AboutBook() {
+  const site = await getSiteContent();
   const { eyebrow, headline, metaLine, body, ctaLabel } = site.copy.aboutBook;
   return (
     <section

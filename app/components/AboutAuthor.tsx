@@ -1,6 +1,7 @@
-import site from "@/site.config";
+import { getSiteContent } from "@/app/lib/content";
 
-export default function AboutAuthor() {
+export default async function AboutAuthor() {
+  const site = await getSiteContent();
   const {
     eyebrow,
     headline,

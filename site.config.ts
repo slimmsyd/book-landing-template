@@ -111,7 +111,7 @@ export type SiteConfig = {
       eyebrow: string;
       headline: string;
       body: string;
-      photos: { caption: string }[];
+      photos: { caption: string; image: string }[];
     };
     checkout: {
       summaryItemSubtitle: string;
@@ -248,9 +248,9 @@ export const site: SiteConfig = {
       headline: "The work beyond the page.",
       body: "A short paragraph about the mission, community, or cause behind the book.",
       photos: [
-        { caption: "Caption one" },
-        { caption: "Caption two" },
-        { caption: "Caption three" },
+        { caption: "Caption one", image: "" },
+        { caption: "Caption two", image: "" },
+        { caption: "Caption three", image: "" },
       ],
     },
     checkout: {

@@ -23,12 +23,16 @@ export type FulfillableOrder = {
 export async function fulfillOrder(order: FulfillableOrder): Promise<void> {
   console.log("[fulfillOrder] payment succeeded", order);
 
-  // Persist to the database when the CRM is enabled (no-op otherwise).
+  // Persist to the database when the CRM is enabled (no-op otherwise), then
+  // send the customer receipt + admin alert via Resend (once per order; no-op
+  // when the DB or Resend env is unset).
   try {
     const { upsertOrder } = await import("./orders");
     await upsertOrder(order);
+    const { notifyOrderIfNeeded } = await import("./order-notifications");
+    await notifyOrderIfNeeded(order.paymentIntentId);
   } catch (err) {
-    console.error("[fulfillOrder] DB persist failed", err);
+    console.error("[fulfillOrder] DB persist / email failed", err);
   }
 
   const url = process.env.ORDER_WEBHOOK_URL;

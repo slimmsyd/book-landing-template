@@ -31,7 +31,8 @@ const ORDERS_DDL = `
     amount_cents              INTEGER NOT NULL,
     currency                  TEXT NOT NULL DEFAULT 'usd',
     status                    TEXT NOT NULL DEFAULT 'paid',
-    created_at                TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at                TIMESTAMPTZ NOT NULL DEFAULT now(),
+    notification_sent_at      TIMESTAMPTZ
   );
 `;
 
@@ -48,6 +49,10 @@ try {
   await sql.query(SITE_CONTENT_DDL);
   await sql.query(ORDERS_DDL);
   await sql.query(SUBSCRIBERS_DDL);
+  // Idempotent migration for databases created before email notifications.
+  await sql.query(
+    `ALTER TABLE orders ADD COLUMN IF NOT EXISTS notification_sent_at TIMESTAMPTZ`,
+  );
   // No seed: getSiteContent() falls back to site.config when the row is absent,
   // and the first admin save materializes the full document.
   console.log("✓ CRM tables ready: site_content, orders, subscribers");

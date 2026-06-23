@@ -8,13 +8,22 @@ export type SubscriberRow = {
   created_at: string;
 };
 
-/** Record a newsletter signup. Dedupes on email. No-op if DB off. */
-export async function upsertSubscriber(email: string, source = "free-chapter"): Promise<void> {
-  if (!dbEnabled) return;
-  await sql`
+/**
+ * Record a newsletter signup. Dedupes on email. No-op if DB off.
+ * Returns `{ isNew }` — true only when this email was inserted for the first
+ * time, so callers can send a welcome email exactly once.
+ */
+export async function upsertSubscriber(
+  email: string,
+  source = "free-chapter",
+): Promise<{ isNew: boolean }> {
+  if (!dbEnabled) return { isNew: false };
+  const rows = await sql`
     INSERT INTO subscribers (email, source) VALUES (${email}, ${source})
     ON CONFLICT (email) DO NOTHING
+    RETURNING id
   `;
+  return { isNew: rows.length > 0 };
 }
 
 export async function getSubscribers(limit = 500): Promise<SubscriberRow[]> {

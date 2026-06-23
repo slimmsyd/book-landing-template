@@ -27,12 +27,18 @@ export async function POST(req: Request) {
 
   console.log("[subscribe] new signup", email);
 
-  // Persist to the database when the CRM is enabled (no-op otherwise).
+  // Persist to the database when the CRM is enabled (no-op otherwise), and on a
+  // genuinely new signup send the welcome + admin emails via Resend (no-op when
+  // the DB or Resend env is unset).
   try {
     const { upsertSubscriber } = await import("@/app/lib/subscribers");
-    await upsertSubscriber(email, "free-chapter");
+    const { isNew } = await upsertSubscriber(email, "free-chapter");
+    if (isNew) {
+      const { sendNewsletterEmails } = await import("@/app/lib/email");
+      await sendNewsletterEmails(email);
+    }
   } catch (err) {
-    console.error("[subscribe] DB persist failed", err);
+    console.error("[subscribe] DB persist / email failed", err);
   }
 
   const url = process.env.EMAIL_WEBHOOK_URL;

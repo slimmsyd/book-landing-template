@@ -106,6 +106,21 @@ export type SiteConfig = {
       successTitle: string;
       successBody: string;
       finePrint: string;
+      /** Resend notification copy — editable in the admin CRM. */
+      emails: {
+        welcome: {
+          subject: string;
+          headline: string;
+          body: string;
+          signOff: string;
+          footer: string;
+        };
+        admin: {
+          subject: string;
+          headline: string;
+          body: string;
+        };
+      };
     };
     community: {
       eyebrow: string;
@@ -119,6 +134,21 @@ export type SiteConfig = {
       shippingNote: string;
       successTitle: string;
       successBody: string;
+      /** Resend notification copy — editable in the admin CRM. */
+      emails: {
+        customer: {
+          subject: string;
+          headline: string;
+          body: string;
+          signOff: string;
+          footer: string;
+        };
+        admin: {
+          subject: string;
+          headline: string;
+          body: string;
+        };
+      };
     };
   };
 
@@ -242,6 +272,21 @@ export const site: SiteConfig = {
       successTitle: "Thank you.",
       successBody: "Check your inbox. The first chapter is on its way.",
       finePrint: "No spam. One chapter, then the occasional note.",
+      emails: {
+        welcome: {
+          subject: "Your first chapter is on its way",
+          headline: "Thank you for signing up.",
+          body: "You're on the list. We'll send the opening chapter straight to this inbox shortly.\n\nSmall enough to begin today. Deep enough to return to for a lifetime.",
+          signOff: "With gratitude,\nThe team",
+          footer:
+            "No spam — one chapter, then the occasional note. If you didn't request this, you can safely ignore this email.",
+        },
+        admin: {
+          subject: "New signup — free chapter list",
+          headline: "Someone joined the list",
+          body: "A new reader signed up for the free chapter. Their welcome email has been sent automatically and the address is saved to the subscriber list.",
+        },
+      },
     },
     community: {
       eyebrow: "Beyond the book",
@@ -260,6 +305,21 @@ export const site: SiteConfig = {
       successTitle: "Thank you. Your order is in.",
       successBody:
         "A confirmation is on its way to your inbox. Your order will ship shortly.",
+      emails: {
+        customer: {
+          subject: "Your order is confirmed",
+          headline: "Thank you. Your order is in.",
+          body: "We've received your order and are preparing it for shipping. Your full order details are below.",
+          signOff: "With gratitude,\nThe team",
+          footer:
+            "Questions about your order? Just reply to this email. If you didn't place this order, please contact us right away.",
+        },
+        admin: {
+          subject: "New order",
+          headline: "New order received",
+          body: "A customer has completed checkout. Fulfillment details are below. The order is also recorded in the admin CRM.",
+        },
+      },
     },
   },
 
